@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { useNavigate } from 'react-router-dom';
-import Header from '../../components/ui/Header'
-import { todos as initialTodos } from '../../utils/data';
+import Header from '../../components/ui/Header';
 import TodoList from '../../components/todo/TodoList';
 
 import TodoForm from '../../components/todo/TodoForm';
@@ -9,65 +8,40 @@ import ConfirmDialog from '../../components/ui/ConfirmDialog';
 import TodoActions from '../../components/ui/TodoActions';
 import TodoStats from '../../components/ui/TodoStats';
 
-function TodoPage({ currentUser, onLogout }) {
+import { useTodo } from '../../context/TodoContext';
+import { useAuth } from '../../context/AuthContext';
+
+function TodoPage() {
+
   const navigate = useNavigate();
-  const [todos, setTodos] = useState([]);
-  const [currentFilter, setCurrentFilter] = useState('all');
-  const [showTodoForm, setShowTodoForm] = useState(false);
+  const { currentUser, logout } = useAuth();
 
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [todoToDelete, setTodoToDelete] = useState(null);
+  const {
+    todos,
+    currentFilter,
+    showTodoForm,
+    showConfirmDialog,
 
-  useEffect(() => {
-    setTodos(initialTodos);
-  }, [])
+    handleToggleComplete,
+    handleDeleteTodo,
+    handleConfirmDelete,
+    handleCancelDelete,
+    handleAddTodo,
+    handleFilterChange,
+    openTodoForm,
+    closeTodoForm } = useTodo();
+
 
   const handleLogout = () => {
-    onLogout();
+    logout()
     navigate('/login');
   };
-
   if (!currentUser) {
     navigate('/login');
     return null;
   }
-
-  const handleAddTodo = (newTodo) => {
-    setTodos(prevTodos => [...prevTodos, newTodo])
-  }
-
-  const handleToggleComplete = (todoId) => {
-    setTodos(
-      prevTodos => prevTodos.map(todo =>
-        todo.id === todoId ? { ...todo, isCompleted: !todo.isCompleted } : todo
-      ))
-  }
-
-  const handleDeleteTodo = (todoId) => {
-    setTodoToDelete(todoId)
-    setShowConfirmDialog(true)
-  }
-
-  const handleFilterChange = (filter) => {
-    setCurrentFilter(filter)
-  }
-
-  const handleConfirmDelete = () => {
-    if (todoToDelete) {
-      setTodos(prevTodos => prevTodos.filter(todo =>
-        todo.id !== todoToDelete
-      ))
-      setTodoToDelete(null)
-    }
-    setShowConfirmDialog(false)
-  }
-  const handleCanceDelete = () => {
-    setTodoToDelete(null)
-    setShowConfirmDialog(false)
-
-  }
-
   return (
+
     <div className="bg-light ">
       <Header currentUser={currentUser} onLogout={handleLogout} />
       <div className="container mt-4">
@@ -75,7 +49,7 @@ function TodoPage({ currentUser, onLogout }) {
           <TodoStats
             todos={todos} />
           <TodoActions
-            onAddClick={() => setShowTodoForm(true)}
+            onAddClick={openTodoForm}
             currentFilter={currentFilter}
             onFilterChange={handleFilterChange}
           />
@@ -89,7 +63,7 @@ function TodoPage({ currentUser, onLogout }) {
 
         <TodoForm
           show={showTodoForm}
-          onClose={() => setShowTodoForm(false)}
+          onClose={closeTodoForm}
           onAddTodo={handleAddTodo}
         />
 
@@ -99,7 +73,7 @@ function TodoPage({ currentUser, onLogout }) {
           message="정말로 이 할 일을 삭제하시겠습니까?"
           confirmText="삭제"
           onConfirm={handleConfirmDelete}
-          onCancel={handleCanceDelete}
+          onCancel={handleCancelDelete}
         />
       </div>
     </div>

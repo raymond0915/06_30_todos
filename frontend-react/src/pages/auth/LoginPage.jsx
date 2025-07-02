@@ -1,41 +1,47 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { users } from '../../utils/data'
-function LoginPage({ currentUser, onLogin }) {
-  const navigate = useNavigate();
+import { initialUsers } from '../../utils/data'
+import { useAuth } from '../../context/AuthContext';
+import { userAPI } from '../../utils/data';
 
+function LoginPage() {
+
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+
+  const { currentUser, login } = useAuth();
+
+  useEffect(() => {
+    console.log("!")
+
+  }, [])
 
   useEffect(() => {
     if (currentUser) {
       navigate('/todo')
     }
+
   }, [currentUser, navigate])
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 로그인 검사
-    // 입력 값이 없는 경우
     if (!email || !password) {
       setErrorMessage('모든 항목을 입력해주세요.');
       return;
     }
 
-    const foundUser = users.find(user =>
-      user.email === email &&
-      user.password === password
-    )
-
-    if (foundUser) {
-      onLogin({ email: foundUser.email })
-      navigate('/todo')
-    } else {
+    try {
+      const result = await userAPI.login(email, password)
+      if (result.success) {
+        login({ email: result.user.email })
+        navigate('/todo')
+      }
+    } catch (e) {
       setErrorMessage('잘못된 이메일 또는 비밀번호입니다.');
       return;
-      // 로그인 실패!
     }
   }
 

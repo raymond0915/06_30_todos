@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { todos } from '../../utils/data'
+import { initialTodos } from '../../utils/data'
 
 const TodoForm = ({ show, onClose, onAddTodo }) => {
   const [title, setTitle] = useState('')
@@ -15,7 +15,6 @@ const TodoForm = ({ show, onClose, onAddTodo }) => {
     }
 
     const newTodo = {
-      id: todos.reduce((maxId, todos) => Math.max(maxId, todos.id) + 1, 0),
       title,
       description,
       isCompleted

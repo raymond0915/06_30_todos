@@ -1,5 +1,5 @@
 // js/data.js
-export const todos = [
+export const initialTodos = [
   { id: 1, title: "HTML 기본 태그 복습", description: "p, h1~h6, ul 등", isCompleted: true },
   { id: 2, title: "Flexbox 연습", description: "justify-content, align-items 사용", isCompleted: false },
   { id: 3, title: "부트스트랩 Grid 시스템", description: "row, col 구조 이해", isCompleted: false },
@@ -32,8 +32,59 @@ export const todos = [
   { id: 30, title: "할 일 상세 설명 보이기", description: "hover 또는 toggle 방식", isCompleted: false },
 ];
 
-export const users = [
+export const initialUsers = [
   { email: "user1@example.com", password: "password123" },
   { email: "admin@example.com", password: "adminpass" },
   { email: "guest@example.com", password: "guest" }
 ];
+
+
+const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
+
+
+export const todoAPI = {
+  async fetchTodos() {
+    await delay(8000);
+    return [...initialTodos]
+  },
+
+  async addTodo(todo) {
+    await delay(5000);
+    const newTodo = {
+      ...todo,
+      id: initialTodos.reduce((maxId, todos) => Math.max(maxId, todos.id) + 1, 0),
+    }
+    return newTodo;
+  },
+
+  async toggleTodo(todoId, isCompleted) {
+    await delay(3000)
+    return { id: todoId, isCompleted }
+  },
+
+  async deleteTodo(todoId) {
+    await delay(3000)
+    return todoId
+  },
+
+  async updateTodo(todoId, updates) {
+    await delay(4000)
+    return { id: todoId, ...updates }
+  }
+}
+
+export const userAPI = {
+  async login(email, password) {
+    await delay(3000)
+    const user = initialUsers.find(user =>
+      user.email === email &&
+      user.password === password
+    )
+    if (user) {
+      return { success: true, user: { email: user.email } }
+    }
+    throw new Error("로그인 실패")
+  }
+
+
+}
