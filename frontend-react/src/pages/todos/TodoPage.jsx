@@ -17,7 +17,6 @@ function TodoPage({ currentUser, onLogout }) {
     setTodos(initialTodos);
   }, [])
 
-
   const handleLogout = () => {
     onLogout();
     navigate('/login');
@@ -30,6 +29,25 @@ function TodoPage({ currentUser, onLogout }) {
 
   const handleAddTodo = (newTodo) => {
     setTodos(prevTodos => [...prevTodos, newTodo])
+  }
+
+  const handleToggleComplete = (todoId) => {
+    setTodos(
+      prevTodos => prevTodos.map(todo =>
+        todo.id === todoId ? { ...todo, isCompleted: !todo.isCompleted } : todo
+      ))
+  }
+
+  const handleDeleteTodo = (todoId) => {
+    if (window.confirm("삭제 하시겠습니까?")) {
+      setTodos(prevTodos => prevTodos.filter(todo =>
+        todo.id !== todoId
+      ))
+    }
+  }
+
+  const handleFilterChange = (filter) => {
+    setCurrentFilter(filter)
   }
 
   return (
@@ -52,11 +70,16 @@ function TodoPage({ currentUser, onLogout }) {
 
             {<TodoFilter
               currentFilter={currentFilter}
-            // onFilterChange={handleFilterChange}
+              onFilterChange={handleFilterChange}
             />}
           </div>
         </div>
-        <TodoList todos={todos} currentFilter={currentFilter} />
+        <TodoList
+          todos={todos}
+          currentFilter={currentFilter}
+          onToggleComplete={handleToggleComplete}
+          onDeleteTodo={handleDeleteTodo}
+        />
         <TodoForm
           show={showTodoForm}
           onClose={() => setShowTodoForm(false)}
