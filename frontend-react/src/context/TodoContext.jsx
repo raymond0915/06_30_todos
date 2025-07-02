@@ -31,14 +31,19 @@ export const TodoProvider = ({ children }) => {
     }
   }
 
-  const handleConfirmDelete = () => {
-    if (todoToDelete) {
-      setTodos(prevTodos => prevTodos.filter(todo =>
-        todo.id !== todoToDelete
-      ))
+  const handleConfirmDelete = async () => {
+    if (!todoToDelete) return;
+    try {
+      await todoAPI.deleteTodo(todoToDelete)
+      setTodos(prevTodos =>
+        prevTodos.filter(todo => todo.id !== todoToDelete));
       setTodoToDelete(null)
+    } catch (e) {
+
+    } finally {
+      setShowConfirmDialog(false)
     }
-    setShowConfirmDialog(false)
+
   }
 
   const handleCancelDelete = () => {
@@ -52,19 +57,34 @@ export const TodoProvider = ({ children }) => {
   }
 
 
-  const handleAddTodo = (newTodo) => {
-    setTodos(prevTodos => [...prevTodos, newTodo])
+  const handleAddTodo = async (newTodo) => {
+    try {
+      const addedTodo = await todoAPI.addTodo(newTodo);
+      setTodos(prevTodos => [...prevTodos, addedTodo])
+      return { success: true }
+    } catch (e) {
+      return { success: false, error: e.message };
+    }
   }
 
   const handleFilterChange = (filter) => {
     setCurrentFilter(filter)
   }
 
-  const handleToggleComplete = (todoId) => {
-    setTodos(
-      prevTodos => prevTodos.map(todo =>
-        todo.id === todoId ? { ...todo, isCompleted: !todo.isCompleted } : todo
-      ))
+  const handleToggleComplete = async (todoId) => {
+    try {
+      const todo = todos.find(t => t.id === todoId)
+      if (!todo) return;
+
+      const result = await todoAPI.toggleTodo(todoId, !todo.isCompleted)
+
+      setTodos(
+        prevTodos => prevTodos.map(todo =>
+          todo.id === todoId ? { ...todo, isCompleted: result.isCompleted } : todo
+        ))
+    } catch (e) {
+
+    }
   }
 
   const openTodoForm = () => setShowTodoForm(true)
