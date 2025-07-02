@@ -44,7 +44,7 @@ const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
 export const todoAPI = {
   async fetchTodos() {
-    await delay(8000);
+    await delay(2000);
     return [...initialTodos]
   },
 

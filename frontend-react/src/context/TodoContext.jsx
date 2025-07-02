@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { initialTodos } from "../utils/data"
+import { todoAPI } from "../utils/data"
 
 const TodoContext = createContext();
 
@@ -11,10 +11,25 @@ export const TodoProvider = ({ children }) => {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
   const [todoToDelete, setTodoToDelete] = useState(null);
 
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    setTodos(initialTodos);
+    loadTodos()
   }, [])
+
+  const loadTodos = async () => {
+    try {
+      setLoading(true)
+      const data = await todoAPI.fetchTodos();
+      setTodos(data)
+    } catch (e) {
+      setError(true)
+      throw Error();
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleConfirmDelete = () => {
     if (todoToDelete) {

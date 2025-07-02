@@ -1,3 +1,4 @@
+import React from 'react';
 import { Routes, Route, BrowserRouter } from "react-router-dom";
 import LoginPage from './pages/auth/LoginPage';
 import TodoPage from './pages/todos/TodoPage';
@@ -9,9 +10,10 @@ import { TodoProvider } from "./context/TodoContext";
 const AppRoutes = () => {
   const { loading } = useAuth();
 
-  if (loading) {
-    return <div>Loding....</div>
-  }
+  // if (!loading) {
+  //   return <div>Loading...</div>;
+  // }
+
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />

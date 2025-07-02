@@ -11,12 +11,9 @@ function LoginPage() {
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
+  const [loading, setLoading] = useState(false);
+
   const { currentUser, login } = useAuth();
-
-  useEffect(() => {
-    console.log("!")
-
-  }, [])
 
   useEffect(() => {
     if (currentUser) {
@@ -27,9 +24,10 @@ function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    setLoading(true);
     if (!email || !password) {
       setErrorMessage('모든 항목을 입력해주세요.');
+      setLoading(false)
       return;
     }
 
@@ -42,6 +40,8 @@ function LoginPage() {
     } catch (e) {
       setErrorMessage('잘못된 이메일 또는 비밀번호입니다.');
       return;
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -52,22 +52,23 @@ function LoginPage() {
   };
 
   return (
-    <div class="d-flex align-items-center justify-content-center min-vh-100 bg-light">
-      <div class="card p-4 shadow-sm" style={{ maxWidth: '400px', width: '100%' }}>
-        <h2 class="card-title text-center mb-4">로그인</h2>
+    <div className="d-flex align-items-center justify-content-center min-vh-100 bg-light">
+      <div className="card p-4 shadow-sm" style={{ maxWidth: '400px', width: '100%' }}>
+        <h2 className="card-title text-center mb-4">로그인</h2>
         <form onSubmit={handleSubmit}>
-          <div class="mb-3">
-            <label for="email" class="form-label">이메일 주소</label>
+          <div className="mb-3">
+            <label htmlFor="email" className="form-label">이메일 주소</label>
             <input
               type="email"
               className="form-control"
               placeholder="name@example.com"
               onChange={(e) => setEmail(e.target.value)}
               value={email}
+              disabled={loading}
             ></input>
           </div>
-          <div class="mb-3">
-            <label for="password" class="form-label">비밀번호</label>
+          <div className="mb-3">
+            <label htmlFor="password" className="form-label">비밀번호</label>
             <input
               type="password"
               className="form-control"
@@ -75,12 +76,25 @@ function LoginPage() {
               placeholder="비밀번호"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
             />
           </div>
-          <p id="errorMessage" class="text-danger text-center"></p>
+          <p id="errorMessage" className="text-danger text-center"></p>
 
-          <div class="d-grid">
-            <button type="submit" class="btn btn-primary">로그인</button>
+          <div className="d-grid">
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={loading}>
+              {loading ? (
+                <>
+                  <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true">
+                  </span>
+                  로그인 중...
+                </>
+              ) : "로그인"}
+
+            </button>
           </div>
         </form>
 
