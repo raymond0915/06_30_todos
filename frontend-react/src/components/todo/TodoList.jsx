@@ -1,21 +1,20 @@
 
-import React from 'react'
+import React, { useMemo } from 'react'
 import TodoCard from './TodoCard';
 import EmptyState from '../ui/EmptyState';
 
 function TodoList({ todos, currentFilter, onToggleComplete, onDeleteTodo }) {
-  const getFilteredTodos = () => {
+  const filteredTodos = useMemo(() => {
     switch (currentFilter) {
       case 'completed':
         return todos.filter(todo => todo.isCompleted);
-
+      case 'incompleted':
         return todos.filter(todo => !todo.isCompleted);
       default:
         return todos;
     }
-  }
+  }, [todos, currentFilter])
 
-  const filteredTodos = getFilteredTodos();
 
   if (filteredTodos.length === 0) {
     return (
