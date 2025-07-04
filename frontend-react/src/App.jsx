@@ -6,6 +6,18 @@ import './assets/styles/App.css';
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { TodoProvider } from "./context/TodoContext";
 
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5분간 데이터를 fresh로 유지
+      cacheTime: 10 * 60 * 1000, // 10분간 캐시 유지
+      retry: 3, // 실패 시 3번 재시도
+      refetchOnWindowFocus: false, // 창 포커스 시 자동 새로고침 비활성화
+    },
+  }
+})
 
 const AppRoutes = () => {
   const { loading } = useAuth();
@@ -26,13 +38,15 @@ const AppRoutes = () => {
 
 function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <TodoProvider>
-          <AppRoutes />
-        </TodoProvider>
-      </AuthProvider>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient} >
+      <BrowserRouter>
+        <AuthProvider>
+          <TodoProvider>
+            <AppRoutes />
+          </TodoProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 }
 

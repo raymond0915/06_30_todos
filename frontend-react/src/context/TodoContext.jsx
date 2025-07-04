@@ -18,6 +18,9 @@ export const TodoProvider = ({ children }) => {
     loadTodos()
   }, [])
 
+
+
+
   const loadTodos = async () => {
     try {
       setLoading(true)
