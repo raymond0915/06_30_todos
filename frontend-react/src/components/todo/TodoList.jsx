@@ -3,7 +3,9 @@ import React, { useMemo } from 'react'
 import TodoCard from './TodoCard';
 import EmptyState from '../ui/EmptyState';
 
-function TodoList({ todos, currentFilter, onToggleComplete, onDeleteTodo }) {
+function TodoList({ todos, currentFilter, onToggleComplete,
+  onDeleteTodo, isLoading = false
+}) {
   const filteredTodos = useMemo(() => {
     switch (currentFilter) {
       case 'completed':
@@ -34,6 +36,7 @@ function TodoList({ todos, currentFilter, onToggleComplete, onDeleteTodo }) {
             onToggleComplete={onToggleComplete}
             onDeleteTodo={onDeleteTodo}
             todo={todo}
+            isLoading={isLoading}
           />
         </div>
       ))}

@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { todoAPI } from "../utils/data"
-import todoStats from "../components/ui/TodoStats";
+import { todoAPI, todoStats } from "../utils/data"
+
 
 
 // 전체 Todos 요청
@@ -17,7 +17,7 @@ export const useTodos = (filter = 'all') => {
   const sortedTodos = todoStats.sortTodos(filteredTodos);
   const stats = todoStats.calculateStats(todos);
 
-  return { todos: sortedTodos, isLoading, error, refetch }
+  return { todos: sortedTodos, isLoading, error, stats }
 }
 
 // todos 추가
@@ -33,8 +33,7 @@ export const useAddTodo = () => {
         ...old,
         {
           ...newTodo,
-          id: initialTodos.reduce((maxId, todos) =>
-            Math.max(maxId, todos.id) + 1, 0),
+          id: Date.now()
         }])
       return { previousTodos }
     },
@@ -52,9 +51,52 @@ export const useAddTodo = () => {
 }
 // todos 삭제
 export const useDeleteTodo = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: todoAPI.deleteTodo,
+    onMutate: async (todoId) => {
+      await queryClient.cancelQueries(['todos']);
+      const previousTodos = queryClient.getQueryData(['todos']);
+      queryClient.setQueryData(['todos'], (old = []) =>
+        old.filter(todo => todo.id !== todoId)
+      )
+      return { previousTodos };
+    },
+    onError: (err, todoId, context) => {
+      if (context?.previousTodos) {
+        queryClient.setQueryData(['todos'], context.previousTodos);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(['todos']);
+    },
+  });
 
 }
-// todos 상태 값 변경
-export const useUpdateTodo = () => {
 
+// todos 상태 값 변경
+export const useToggleTodo = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ todoId, isCompleted }) => todoAPI.toggleTodo(todoId, isCompleted),
+    onMutate: async ({ todoId, isCompleted }) => {
+      await queryClient.cancelQueries(['todos']);
+      const previousTodos = queryClient.getQueryData(['todos']);
+      queryClient.setQueryData(['todos'], (old = []) =>
+        old.map(todo =>
+          todo.id === todoId ? { ...todo, isCompleted } : todo
+        )
+      );
+      return { previousTodos };
+    },
+    onError: (err, variables, context) => {
+      if (context?.previousTodos) {
+        queryClient.setQueryData(['todos'], context.previousTodos);
+      }
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries(['todos']);
+    },
+  });
 }
